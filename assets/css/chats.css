@@ -1,0 +1,13 @@
+body{
+
+    background-image: url(../images/chat_bg.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+
+}
+
+img{
+
+    border-radius: 60px !important;
+
+}

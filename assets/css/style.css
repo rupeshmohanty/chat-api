@@ -1,0 +1,9 @@
+body{
+    background-image: url('../images/chat_bg.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.card{
+    margin-top: 150px !important;
+}
