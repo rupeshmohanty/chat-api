@@ -81,7 +81,7 @@
 
     if($name != "" && $email != "" && $password != "" && $cpassword != "") { // if the form fields are not empty!
         
-        $checkUser = "SELECT * FROM users WHERE email = '$email' AND password = '$newPassword'";
+        $checkUser = "SELECT * FROM users WHERE BINARY email = '$email' AND BINARY password = '$newPassword'";
         $checkUserStatus = mysqli_query($conn,$checkUser) or die(mysqli_error($conn));
 
         if(mysqli_num_rows($checkUserStatus) > 0) { // if user exists!
