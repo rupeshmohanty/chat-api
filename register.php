@@ -4,77 +4,120 @@
     session_start();
 
     // include DB connection
-    include('scripts/db.php');
-    error_reporting(0);
+    include('./db.php');
 
-    // getting the message!
-    $message = $_GET['message'];
+    // declaring variables
+    $name = "";
+    $email = "";
+    $password = "";
+    $cpassword = "";
+    $salt = uniqid();
 
-     // checking if the user is logged in or not!
-     if(isset($_SESSION['email'])) { // if logged in!
+    // get form data
+    if(isset($_POST['name'])) {
+        $name = $_POST['name'];
+    }
+    if(isset($_POST['email'])) {
+        $email = $_POST['email'];
+    }
+    if(isset($_POST['password'])) {
+        $password = $_POST['password'];
+    }
+    if(isset($_POST['password'])) {
+        $cpassword = $_POST['password'];
+    }
 
-        header('Location: ./chats.php');
+    $newPassword = md5(md5($password).$salt);
+
+    // setting up the target directory where you want to upload your images!
+    $target_dir = "../dp/";
+    $target_file = $target_dir . basename($_FILES["dp"]["name"]);
+    $uploadOk = 1;
+    $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+
+    // Check if image file is a actual image or fake image
+    if(isset($_POST["submit"])) {
+        $check = getimagesize($_FILES["dp"]["tmp_name"]);
+        if($check !== false) {
+        echo "File is an image - " . $check["mime"] . ".";
+        $uploadOk = 1;
+        } else {
+        echo "File is not an image.";
+        $uploadOk = 0;
+        }
+    }
+
+    // Check if file already exists
+    if (file_exists($target_file)) {
+        echo "Sorry, file already exists.";
+        $uploadOk = 0;
+    }
+
+    // Check file size
+    if ($_FILES["dp"]["size"] > 500000) {
+        echo "Sorry, your file is too large.";
+        $uploadOk = 0;
+    }
+  
+    // Allow certain file formats
+    if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+    && $imageFileType != "gif" ) {
+    echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+    $uploadOk = 0;
+    }
+
+
+    // Check if $uploadOk is set to 0 by an error
+    if ($uploadOk == 0) {
+        echo "Sorry, your file was not uploaded.";
+    // if everything is ok, try to upload file
+    } else {
+        if (move_uploaded_file($_FILES["dp"]["tmp_name"], $target_file)) {
+        echo "The file ". basename( $_FILES["dp"]["name"]). " has been uploaded.";
+        } else {
+        echo "Sorry, there was an error uploading your file.";
+        }
+    }
+
+    if($name != "" && $email != "" && $password != "" && $cpassword != "") { // if the form fields are not empty!
+        
+        $checkUser = "SELECT * FROM users WHERE email = '$email' AND password = '$newPassword'";
+        $checkUserStatus = mysqli_query($conn,$checkUser) or die(mysqli_error($conn));
+
+        if(mysqli_num_rows($checkUserStatus) > 0) { // if user exists!
+
+            header('Location: ../index.php?message=You have already registered!');
+
+        } else {
+
+            if($password == $cpassword) { // if the password fields match!
+            
+                $image = basename($_FILES["dp"]["name"]);
+                $insertUser = "INSERT INTO users(name,email,password,dp,salt) VALUES('$name','$email','$newPassword','$image','$salt')";
+                $insertUserStatus = mysqli_query($conn,$insertUser) or die(mysqli_error($conn));
+    
+                if($insertUserStatus) { // if the user is successfully registered!
+      
+                    header('Location: ../index.php?message=You have registered successfully!');
+    
+                }  else { // if user is not registered successfully!
+    
+                    header('Location: ../register.php?message=Unable to register!');
+    
+                }
+    
+            } else { // if password fields dont match!
+    
+                header('Location: ../register.php?message=Password fields do not match!');
+    
+            }
+
+        }
+
+
+    } else { // if any of the fields are empty!
+
+        header('Location: ../register.php?message=Please fill the fields properly!');  
 
     }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wassup</title>
-    <!-- External stylesheets -->
-    <link rel="stylesheet" href="./assets/css/style.css">
-    <!-- Bootstrap CDN -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-</head>
-<body>
-
-    <div class="container mt-4 text-center">
-    <?php
-        if($message != "") {
-    ?>
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <strong><?=$message?></strong>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    <?php
-        }
-    ?>
-        <div class="card mb-4" style = "display : inline-block">
-            <div class="card-title mt-4">
-                <strong><h4>Register</h4></strong>
-            </div>
-            <div class="card-body">
-                <form action="scripts/register.php" method = "POST" enctype = "multipart/form-data">
-                    <div class="form-group">
-                        <input type="text" name = "name" id = "name" placeholder = "Full Name" class = "form-control" required/>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" name = "email" id = "email" placeholder = "Email" class="form-control" required/>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" name = "password" id = "password" placeholder = "Password" class="form-control" required/>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" name = "cpassword" id = "cpassword" placeholder = "Confirm Password" class="form-control" required/>
-                    </div>
-                    <div class="form-group">
-                        <label for="exampleFormControlFile1">Upload a cute picture</label>
-                        <input type="file" class="form-control-file" id="dp" name = "dp" required/>
-                    </div>
-                    <button type = "submit" class = "btn btn-outline-primary">Register</button>
-                    <p class = "text-muted mt-2">Already have an account? <a href="./index.php">Login Here!</a></p>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bootstrap scripts! -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-</body>
-</html>
