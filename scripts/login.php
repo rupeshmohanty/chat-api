@@ -9,6 +9,7 @@
     // declaring variables
     $email = "";
     $password = "";
+    $salt = uniqid();
 
     // getting form data!
     if(isset($_POST['email'])) {
@@ -19,9 +20,11 @@
         $password = mysqli_real_escape_string($conn,strip_tags($_POST['password']));
     }
 
+    $newPassword = md5(md5($password).$salt);
+
     if($email != "" && $password != "") { // if the fields are not empty!
          
-        $checkUser = "SELECT * FROM `users` WHERE BINARY `email` = '$email' AND BINARY `password` = '$password'";
+        $checkUser = "SELECT * FROM `users` WHERE BINARY `email` = '$email' AND BINARY `password` = '$newPassword'";
         $checkUserStatus = mysqli_query($conn,$checkUser) or die(mysqli_error($conn));
 
         if(mysqli_num_rows($checkUserStatus) > 0) { // if user exists!
