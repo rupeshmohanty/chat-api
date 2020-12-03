@@ -6,13 +6,13 @@
     // include DB connection
     include('scripts/db.php');
 
-    if(!isset($_SESSION['email'])) { // if user not logged in!
+    if(isset($_SESSION['email'])) { // if user not logged in!
 
-        header('Location: ./index.php');
+        $email = $_SESSION['email'];
 
     } else {
 
-        $email = $_SESSION['email'];
+      header('Location: ./index.php?message=Please login first!');
 
     }
 ?>
@@ -24,10 +24,11 @@
     <title>Wassup</title>
     <!-- external stylesheets -->
     <link rel="stylesheet" href="assets/css/chats.css">
+    <link rel="stylesheet" href="assets/css/snackbar.css">
     <!-- Bootstrap CDN -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 </head>
-<body>
+<body onLoad = "myFunction()">
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -57,6 +58,9 @@
 
     <!-- chats section -->
     <div class="container mt-4">
+      <?php
+        include "common/snackbar.php";
+      ?>
       <div class="card">
         <div class="card-title text-center">
           <form class="form-inline mt-4" style = "display : inline-block" method = "POST" action = "scripts/search-users.php">
@@ -98,5 +102,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <!-- Scripts -->
+    <script src="assets/js/snackbar.js"></script>
 </body>
 </html>

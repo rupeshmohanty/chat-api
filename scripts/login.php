@@ -9,27 +9,43 @@
     // declaring variables
     $email = "";
     $password = "";
-    $salt = uniqid();
 
     // getting form data!
     if(isset($_POST['email'])) {
-        $email = mysqli_real_escape_string($conn,strip_tags($_POST['email']));
+        $email = $_POST['email'];
     }
 
     if(isset($_POST['password'])) {
-        $password = mysqli_real_escape_string($conn,strip_tags($_POST['password']));
+        $password = $_POST['password'];
     }
 
-    $newPassword = md5(md5($password).$salt);
 
     if($email != "" && $password != "") { // if the fields are not empty!
          
-        $checkUser = "SELECT * FROM `users` WHERE BINARY `email` = '$email' AND BINARY `password` = '$newPassword'";
+        $checkUser = "SELECT * FROM `users` WHERE `email` = '$email'";
         $checkUserStatus = mysqli_query($conn,$checkUser) or die(mysqli_error($conn));
 
         if(mysqli_num_rows($checkUserStatus) > 0) { // if user exists!
 
-            header('Location: ../chats.php?message=You have logged in!');
+            $getSalt = "SELECT * FROM `users` WHERE `email` = '$email'";
+            $getSaltStatus = mysqli_query($conn,$getSalt) or die(mysqli_error($conn));
+            $getSaltRow = mysqli_fetch_assoc($getSaltStatus);
+
+            $salt = $getSaltRow['salt'];
+            $dbPassword = $getSaltRow['password'];
+            $ePassword = md5(md5($password).$salt);
+
+            if($ePassword == $dbPassword) { // if password entered is correct!
+
+                $_SESSION['email'] = $email;
+                header('Location: ../chats.php?message=Yokoso! You have successfully logged in!');
+
+            } else {
+
+                header('Location: ../index.php?message=Password doesnt match!');
+
+            }
+
 
         } else {
 
@@ -43,5 +59,4 @@
 
     }
 
-    $_SESSION['email'] = $email;
 ?>

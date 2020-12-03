@@ -93,7 +93,7 @@
             if($password == $cpassword) { // if the password fields match!
             
                 $image = basename($_FILES["dp"]["name"]);
-                $insertUser = "INSERT INTO users(name,email,password,dp,salt) VALUES('$name','$email','$newPassword','$image','$salt')";
+                $insertUser = "INSERT INTO users(`name`,`email`,`password`,`dp`,`salt`) VALUES('$name','$email','$newPassword','$image','$salt')";
                 $insertUserStatus = mysqli_query($conn,$insertUser) or die(mysqli_error($conn));
     
                 if($insertUserStatus) { // if the user is successfully registered!
